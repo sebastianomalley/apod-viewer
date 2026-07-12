@@ -14,14 +14,8 @@ import { currentDate, normalizeDate, formatDate } from './storage.js'; // Put da
  * @returns {Promise<boolean>} - Returns true if the fetch and display are successful, otherwise false.
  */
 
-let nasaApiKey = null;
 export async function fetchNasaKey() {
-  if (!nasaApiKey) {
-    const res = await fetch('/api/nasa-key');
-    const { key } = await res.json();
-    nasaApiKey = key;
-  }
-  return nasaApiKey;
+  return 'DEMO_KEY';
 }
 
 export async function fetchAndDisplayAPOD(utcdate, isSearch = false) {
