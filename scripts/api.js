@@ -15,7 +15,7 @@ import { currentDate, normalizeDate, formatDate } from './storage.js'; // Put da
  */
 
 export async function fetchNasaKey() {
-  return 'DEMO_KEY';
+  return 'YqggPbVWuluTgrNrJdcuO7bqsTJCNAZfPk2AHbgL';
 }
 
 export async function fetchAndDisplayAPOD(utcdate, isSearch = false) {
