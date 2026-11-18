@@ -1,7 +1,7 @@
 // main.js
 
 // Import necessary functions and state variables from other modules.
-import { currentDate, normalizeDate, getLikedImages, setCurrentDate } from './storage.js';
+import { currentDate, normalizeDate, getLikedImages, setCurrentDate, LATEST_APOD_DATE } from './storage.js';
 import { updateLikedImagesList } from './eventHandlers.js'; // Move the UI update logic there.
 import { fetchAndDisplayAPOD } from './api.js';
 
@@ -10,7 +10,7 @@ import { fetchAndDisplayAPOD } from './api.js';
  */
 window.onload = async () => {
   // Normalize today's date to ensure consistency in date formatting.
-  const today = normalizeDate(new Date());
+  const today = normalizeDate(new Date(Math.min(Date.now(), LATEST_APOD_DATE.getTime())));
   
   // Check if the currentDate is set to a future date.
   if (currentDate.getTime() > today.getTime()) {

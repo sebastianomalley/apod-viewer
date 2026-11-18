@@ -2,7 +2,7 @@
 
 // Import necessary functions and elements from other modules.
 import { showNoImageState, showLoadingState, clearVideoContainer, apodImage, apodTitle, apodDate, apodDescription, currentMediaType } from './ui.js';
-import { currentDate, normalizeDate, formatDate } from './storage.js'; // Put date helpers in storage.js.
+import { currentDate, normalizeDate, formatDate, LATEST_APOD_DATE } from './storage.js'; // Put date helpers in storage.js.
 
 
 
@@ -42,6 +42,11 @@ export async function fetchAndDisplayAPOD(utcdate, isSearch = false) {
     
     // Parse the JSON data from the response.
     const data = await response.json();
+
+    // Skip NASA's post-migration placeholder entries.
+    if (!data || data.title === 'NASA Science' || /nasa-logo|nasa_logo/i.test(data.url || '')) {
+      throw new Error('Placeholder entry, no APOD for this date.');
+    }
 
     console.log("Fetched APOD data for date:", formattedDate, data);
 
@@ -127,7 +132,7 @@ function createVideoContainer(url) {
  */
 export async function changeDate(days, currentDateState, setCurrentDate, fetchAndDisplayFunc) {
   // Normalize today's date.
-  const today = normalizeDate(new Date()); 
+  const today = normalizeDate(new Date(Math.min(Date.now(), LATEST_APOD_DATE.getTime())));
   
   // Normalize the new date based on the current date state.
   const newDate = normalizeDate(new Date(currentDateState));

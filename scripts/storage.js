@@ -1,7 +1,11 @@
 // storage.js
 
 // Export the current date, initialized to the current date and time.
-export let currentDate = new Date();
+// NASA moved APOD to science.nasa.gov in mid-2026, and the API now answers recent
+// dates with a generic "NASA Science" placeholder. Open on a known great image and
+// treat LATEST_APOD_DATE as the newest day worth browsing.
+export const LATEST_APOD_DATE = new Date(2026, 5, 30, 12); // 2026-06-30
+export let currentDate = new Date(2024, 11, 17, 12);  // 2024-12-17, Heart Nebula
 
 // Retrieve liked images from localStorage or initialize as an empty array if not present.
 let likedImages = JSON.parse(localStorage.getItem('likedImages')) || [];
