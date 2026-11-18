@@ -1,9 +1,9 @@
 // eventHandlers.js
 
 // Import necessary functions and elements from other modules.
-import { fetchAndDisplayAPOD, changeDate } from './api.js?v=5';
-import { currentDate, setCurrentDate, formatDate, normalizeDate, getLikedImages, setLikedImages, saveBackground, getBackgrounds } from './storage.js?v=5';
-import { apodImage, apodTitle, apodDate, apodDescription, currentMediaType } from './ui.js?v=5';
+import { fetchAndDisplayAPOD, changeDate } from './api.js?v=6';
+import { currentDate, setCurrentDate, formatDate, normalizeDate, getLikedImages, setLikedImages, saveBackground, getBackgrounds } from './storage.js?v=6';
+import { apodImage, apodTitle, apodDate, apodDescription, currentMediaType } from './ui.js?v=6';
 
 // Select DOM elements for interaction.
 const prevBtn = document.getElementById('prev-btn'); // Previous button element.

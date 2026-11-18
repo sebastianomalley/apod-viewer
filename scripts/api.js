@@ -1,8 +1,8 @@
 // api.js
 
 // Import necessary functions and elements from other modules.
-import { showNoImageState, showLoadingState, clearVideoContainer, apodImage, apodTitle, apodDate, apodDescription, currentMediaType } from './ui.js?v=5';
-import { currentDate, normalizeDate, formatDate, LATEST_APOD_DATE } from './storage.js?v=5'; // Put date helpers in storage.js.
+import { showNoImageState, showLoadingState, clearVideoContainer, apodImage, apodTitle, apodDate, apodDescription, currentMediaType } from './ui.js?v=6';
+import { currentDate, normalizeDate, formatDate, LATEST_APOD_DATE } from './storage.js?v=6'; // Put date helpers in storage.js.
 
 
 
@@ -35,10 +35,45 @@ async function fromArchive(dateStr) {
   return { title: entry.t, explanation: entry.e, url: entry.u, hdurl: entry.h, media_type: entry.m, copyright: entry.c, date: dateStr };
 }
 
-// apod.nasa.gov image links can fail now; try the Internet Archive's copy, then a proxy.
+// apod.nasa.gov is slow or unreachable since NASA's 2026 move, and waiting for it
+// to fail before trying a backup is what made photos crawl. Ask every source at
+// once and use whichever answers first; remember the winner for the next photo.
 export function imageSources(url) {
   const bare = url.replace(/^https?:\/\//, '');
-  return [url, 'https://web.archive.org/web/2025id_/https://' + bare, 'https://images.weserv.nl/?w=1600&url=' + encodeURIComponent('ssl:' + bare)];
+  return {
+    proxy: 'https://images.weserv.nl/?w=1600&we&url=' + encodeURIComponent('ssl:' + bare),
+    proxyHttp: 'https://images.weserv.nl/?w=1600&we&url=' + encodeURIComponent(bare),
+    archive: 'https://web.archive.org/web/2025id_/https://' + bare,
+    direct: url,
+  };
+}
+const raceCache = {};
+let fastest = null;
+export function raceImage(url) {
+  if (raceCache[url]) return raceCache[url];
+  const sources = imageSources(url);
+  const order = fastest ? [fastest, ...Object.keys(sources).filter(k => k !== fastest)] : Object.keys(sources);
+  raceCache[url] = new Promise((resolve, reject) => {
+    let failed = 0, done = false;
+    const start = (key, i) => setTimeout(() => {
+      if (done) return;
+      const probe = new Image();
+      probe.onload = () => { if (!done) { done = true; fastest = key; resolve(sources[key]); } };
+      probe.onerror = () => { if (++failed === order.length && !done) { delete raceCache[url]; reject(new Error('No source loaded')); } };
+      probe.src = sources[key];
+    }, fastest && i > 0 ? 600 : 0);  // once we know the fast source, give it a head start
+    order.forEach(start);
+  });
+  return raceCache[url];
+}
+
+// Warm up the day before and after so Previous / Next feel instant.
+function preloadNeighbors(dateStr) {
+  [-1, 1].forEach(async step => {
+    const d = new Date(dateStr + 'T12:00:00'); d.setDate(d.getDate() + step);
+    const e = await fromArchive(d.toISOString().split('T')[0]);
+    if (e && e.media_type === 'image') raceImage(e.url).catch(() => {});
+  });
 }
 
 export async function fetchAndDisplayAPOD(utcdate, isSearch = false) {
@@ -86,15 +121,14 @@ export async function fetchAndDisplayAPOD(utcdate, isSearch = false) {
       // Set the source and alt text for the APOD image. NASA's old apod.nasa.gov
       // image server stopped answering reliably after the 2026 move to
       // science.nasa.gov, so fall back to the Internet Archive, then an image proxy.
-      const sources = imageSources(data.url);
-      let attempt = 0;
       apodImage.classList.remove('loaded');
       apodImage.onload = () => apodImage.classList.add('loaded');
-      apodImage.onerror = () => {
-        attempt++;
-        if (attempt < sources.length) apodImage.src = sources[attempt];
-      };
-      apodImage.src = sources[0];
+      apodImage.onerror = null;
+      const forDate = formattedDate;
+      raceImage(data.url).then(src => {
+        if (apodDate.textContent === forDate) apodImage.src = src;   // still on this day
+      }).catch(() => {});
+      preloadNeighbors(forDate);
       apodImage.alt = data.title;
       
       // Display the image in the UI.

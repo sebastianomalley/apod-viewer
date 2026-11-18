@@ -1,9 +1,9 @@
 // main.js
 
 // Import necessary functions and state variables from other modules.
-import { currentDate, normalizeDate, getLikedImages, setCurrentDate, LATEST_APOD_DATE } from './storage.js?v=5';
-import { updateLikedImagesList } from './eventHandlers.js?v=5'; // Move the UI update logic there.
-import { fetchAndDisplayAPOD } from './api.js?v=5';
+import { currentDate, normalizeDate, getLikedImages, setCurrentDate, LATEST_APOD_DATE } from './storage.js?v=6';
+import { updateLikedImagesList } from './eventHandlers.js?v=6'; // Move the UI update logic there.
+import { fetchAndDisplayAPOD } from './api.js?v=6';
 
 /**
  * Initializes the application once the window has fully loaded.
