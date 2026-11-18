@@ -1,9 +1,9 @@
 // main.js
 
 // Import necessary functions and state variables from other modules.
-import { currentDate, normalizeDate, getLikedImages, setCurrentDate, LATEST_APOD_DATE } from './storage.js?v=3';
-import { updateLikedImagesList } from './eventHandlers.js?v=3'; // Move the UI update logic there.
-import { fetchAndDisplayAPOD } from './api.js?v=3';
+import { currentDate, normalizeDate, getLikedImages, setCurrentDate, LATEST_APOD_DATE } from './storage.js?v=5';
+import { updateLikedImagesList } from './eventHandlers.js?v=5'; // Move the UI update logic there.
+import { fetchAndDisplayAPOD } from './api.js?v=5';
 
 /**
  * Initializes the application once the window has fully loaded.
@@ -18,7 +18,16 @@ window.onload = async () => {
   }
 
   // Fetch and display the Astronomy Picture of the Day (APOD) for the current date.
-  const success = await fetchAndDisplayAPOD(currentDate);
+  let success = await fetchAndDisplayAPOD(currentDate);
+
+  // Some days are interactive pages rather than pictures; step back to the
+  // closest day that has one instead of greeting people with an error.
+  for (let i = 0; !success && i < 14; i++) {
+    const prev = normalizeDate(new Date(currentDate));
+    prev.setDate(prev.getDate() - 1);
+    setCurrentDate(prev);
+    success = await fetchAndDisplayAPOD(prev);
+  }
   
   // If fetching the APOD was unsuccessful, alert the user.
   if (!success) {

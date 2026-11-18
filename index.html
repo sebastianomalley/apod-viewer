@@ -9,11 +9,11 @@
         />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>NASA APOD Viewer</title>
-        <link rel="stylesheet" href="styles/nasa_apod.css" />
+        <link rel="stylesheet" href="styles/nasa_apod.css?v=5" />
     </head>
     <body>
         <div id="apod-container">
-            <img id="apod-image" alt="NASA's Astronomy Picture of the Day" />
+            <div id="apod-frame"><img id="apod-image" alt="NASA's Astronomy Picture of the Day" /></div>
             <h1 id="apod-title">APOD Title</h1>
             <p id="apod-date">Date</p>
             <p id="apod-description">Description</p>
@@ -63,6 +63,6 @@
             <ul id="liked-images-list"></ul>
         </div>
 
-        <script type="module" src="scripts/main.js?v=3"></script>
+        <script type="module" src="scripts/main.js?v=5"></script>
     </body>
 </html>

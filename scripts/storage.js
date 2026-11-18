@@ -5,7 +5,14 @@
 // day's image. The gallery browses a local archive (2007 to 2025-12-23) instead,
 // opening on a known great image.
 export const LATEST_APOD_DATE = new Date(2025, 11, 23, 12); // 2025-12-23, last day in the local archive
-export let currentDate = new Date(2024, 11, 17, 12);  // 2024-12-17, Heart Nebula
+// Open on today's month and day, from the most recent year in the archive
+// (for example, November 18 opens on 2025-11-18).
+function startDate() {
+  const now = new Date();
+  const d = new Date(2025, now.getMonth(), Math.min(now.getDate(), 28 + (now.getMonth() === 1 ? 0 : 3)), 12);
+  return d.getTime() > LATEST_APOD_DATE.getTime() ? new Date(2024, now.getMonth(), now.getDate(), 12) : d;
+}
+export let currentDate = startDate();
 
 // Retrieve liked images from localStorage or initialize as an empty array if not present.
 let likedImages = JSON.parse(localStorage.getItem('likedImages')) || [];

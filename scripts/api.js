@@ -1,8 +1,8 @@
 // api.js
 
 // Import necessary functions and elements from other modules.
-import { showNoImageState, showLoadingState, clearVideoContainer, apodImage, apodTitle, apodDate, apodDescription, currentMediaType } from './ui.js?v=3';
-import { currentDate, normalizeDate, formatDate, LATEST_APOD_DATE } from './storage.js?v=3'; // Put date helpers in storage.js.
+import { showNoImageState, showLoadingState, clearVideoContainer, apodImage, apodTitle, apodDate, apodDescription, currentMediaType } from './ui.js?v=5';
+import { currentDate, normalizeDate, formatDate, LATEST_APOD_DATE } from './storage.js?v=5'; // Put date helpers in storage.js.
 
 
 
@@ -88,6 +88,8 @@ export async function fetchAndDisplayAPOD(utcdate, isSearch = false) {
       // science.nasa.gov, so fall back to the Internet Archive, then an image proxy.
       const sources = imageSources(data.url);
       let attempt = 0;
+      apodImage.classList.remove('loaded');
+      apodImage.onload = () => apodImage.classList.add('loaded');
       apodImage.onerror = () => {
         attempt++;
         if (attempt < sources.length) apodImage.src = sources[attempt];
@@ -141,8 +143,6 @@ function createVideoContainer(url) {
   videoElement.src = url;
   videoElement.width = '100%'; // Set the iframe width to 100% of its container.
   videoElement.height = '100%'; // Set the iframe height to 100% of its container.
-  videoElement.style.minWidth = '800px';   // Set the minimum width to prevent collapsing.
-  videoElement.style.minHeight = '400px';  // Set the minimum height to prevent collapsing.
   videoElement.style.border = 'none';       // Remove the default border from the iframe.
 
   // Append the iframe to the video container.
