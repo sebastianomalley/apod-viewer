@@ -61,8 +61,21 @@ export async function fetchAndDisplayAPOD(utcdate, isSearch = false) {
       // Set the current media type to image.
       currentMediaType.type = 'image';
       
-      // Set the source and alt text for the APOD image.
-      apodImage.src = data.url;
+      // Set the source and alt text for the APOD image. NASA's old apod.nasa.gov
+      // image server stopped answering reliably after the 2026 move to
+      // science.nasa.gov, so fall back to the Internet Archive, then an image proxy.
+      const bare = data.url.replace(/^https?:\/\//, '');
+      const sources = [
+        data.url,
+        'https://web.archive.org/web/2026id_/https://' + bare,
+        'https://images.weserv.nl/?w=1600&url=' + encodeURIComponent(bare),
+      ];
+      let attempt = 0;
+      apodImage.onerror = () => {
+        attempt++;
+        if (attempt < sources.length) apodImage.src = sources[attempt];
+      };
+      apodImage.src = sources[0];
       apodImage.alt = data.title;
       
       // Display the image in the UI.
